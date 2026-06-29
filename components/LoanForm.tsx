@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,7 +25,9 @@ const cars = {
 
 function formatPrice(value: string) {
   const english = value
-    .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString())
+    .replace(/[۰-۹]/g, (d) =>
+      "۰۱۲۳۴۵۶۷۸۹".indexOf(d).toString()
+    )
     .replace(/\D/g, "");
 
   if (!english) return "";
@@ -38,11 +40,29 @@ function toNumber(value: string) {
 }
 
 export default function LoanForm() {
+  const [isPending, startTransition] =
+    useTransition();
+
+  const [fullName, setFullName] = useState("");
+  const [mobile, setMobile] = useState("");
+
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
+
   const [price, setPrice] = useState("");
   const [deposit, setDeposit] = useState("");
-  const [duration, setDuration] = useState("");
+
+  const [duration, setDuration] =
+    useState("");
+
+  const [description, setDescription] =
+    useState("");
+
+  const [message, setMessage] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState(false);
 
   const models =
     brand === ""
@@ -50,37 +70,135 @@ export default function LoanForm() {
       : cars[brand as keyof typeof cars];
 
   const loanAmount = useMemo(() => {
-    const result = toNumber(price) - toNumber(deposit);
+    const result =
+      toNumber(price) - toNumber(deposit);
 
     return result > 0 ? result : 0;
   }, [price, deposit]);
 
+
+async function handleSubmit() {
+  if (
+    !fullName ||
+    !mobile ||
+    !brand ||
+    !model ||
+    !price ||
+    !deposit ||
+    !duration
+  ) {
+    setSuccess(false);
+    setMessage("لطفاً تمام اطلاعات را تکمیل کنید.");
+    return;
+  }
+
+  setMessage("");
+  setSuccess(false);
+
+  startTransition(async () => {
+    try {
+      const response = await fetch("/api/loan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: fullName,
+          mobile,
+          brand,
+          model,
+          price: toNumber(price),
+          deposit: toNumber(deposit),
+          loan: loanAmount,
+          months: Number(duration),
+          description,
+        }),
+      });
+
+      const result = await response.json();
+
+      setSuccess(result.success);
+      setMessage(result.message);
+
+      if (result.success) {
+        setFullName("");
+        setMobile("");
+        setBrand("");
+        setModel("");
+        setPrice("");
+        setDeposit("");
+        setDuration("");
+        setDescription("");
+      }
+    } catch (err) {
+      console.error(err);
+
+      setSuccess(false);
+      setMessage("ارتباط با سرور برقرار نشد.");
+    }
+  });
+}
+
+
   return (
-    <Card className="overflow-hidden rounded-[34px] border border-slate-200 bg-white shadow-[0_25px_70px_rgba(15,23,42,.10)]">
+    <Card className="overflow-hidden rounded-[34px] border border-slate-200 bg-white shadow-[0_30px_80px_rgba(15,23,42,.10)]">
 
       <CardContent className="p-8">
-
-        {/* Header */}
 
         <div className="mb-8">
 
           <h2 className="text-3xl font-extrabold text-slate-900">
-            درخواست وام
+            درخواست وام خودرو
           </h2>
 
           <p className="mt-2 text-slate-500">
-            اطلاعات خودرو را وارد کنید تا بهترین پیشنهادها نمایش داده شود.
+            فرم زیر را تکمیل کنید تا بهترین
+            پیشنهادهای خرید اقساطی برای شما
+            نمایش داده شود.
           </p>
 
         </div>
 
         <div className="space-y-5">
 
-          {/* Brand */}
+          <div>
+
+            <Label className="mb-2 block">
+              نام و نام خانوادگی
+            </Label>
+
+            <Input
+              value={fullName}
+              onChange={(e) =>
+                setFullName(e.target.value)
+              }
+              placeholder="مثلاً حمید رضایی"
+              className="h-12 rounded-xl"
+            />
+
+          </div>
 
           <div>
 
-            <Label className="mb-2 block font-medium">
+            <Label className="mb-2 block">
+              شماره موبایل
+            </Label>
+
+            <Input
+              dir="ltr"
+              value={mobile}
+              onChange={(e) =>
+                setMobile(e.target.value)
+              }
+              placeholder="09121234567"
+              className="h-12 rounded-xl text-left"
+            />
+
+          </div>
+
+          <div>
+
+            <Label className="mb-2 block">
               برند خودرو
             </Label>
 
@@ -100,7 +218,9 @@ export default function LoanForm() {
 
               <SelectContent>
 
-                <SelectItem value="bmw">BMW</SelectItem>
+                <SelectItem value="bmw">
+                  BMW
+                </SelectItem>
 
                 <SelectItem value="benz">
                   Mercedes-Benz
@@ -124,11 +244,9 @@ export default function LoanForm() {
 
           </div>
 
-          {/* Model */}
-
           <div>
 
-            <Label className="mb-2 block font-medium">
+            <Label className="mb-2 block">
               مدل خودرو
             </Label>
 
@@ -167,11 +285,14 @@ export default function LoanForm() {
 
           </div>
 
+          {/* ادامه در بخش دوم: قیمت خودرو */}
+
+
           {/* Price */}
 
           <div>
 
-            <Label className="mb-2 block font-medium">
+            <Label className="mb-2 block">
               قیمت خودرو
             </Label>
 
@@ -191,7 +312,7 @@ export default function LoanForm() {
 
           <div>
 
-            <Label className="mb-2 block font-medium">
+            <Label className="mb-2 block">
               پیش پرداخت
             </Label>
 
@@ -211,7 +332,7 @@ export default function LoanForm() {
 
           <div>
 
-            <Label className="mb-2 block font-medium">
+            <Label className="mb-2 block">
               مدت بازپرداخت
             </Label>
 
@@ -254,7 +375,27 @@ export default function LoanForm() {
 
           </div>
 
-          {/* Loan Amount */}
+          {/* Description */}
+
+          <div>
+
+            <Label className="mb-2 block">
+              توضیحات (اختیاری)
+            </Label>
+
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) =>
+                setDescription(e.target.value)
+              }
+              placeholder="اگر توضیحی درباره درخواست خود دارید بنویسید..."
+              className="w-full rounded-xl border border-slate-300 p-3 outline-none transition focus:border-blue-600"
+            />
+
+          </div>
+
+          {/* Loan */}
 
           <div className="rounded-2xl border bg-gradient-to-r from-slate-50 to-blue-50 p-5">
 
@@ -262,11 +403,11 @@ export default function LoanForm() {
               مبلغ تقریبی وام
             </p>
 
-            <div className="mt-2 flex items-end justify-between">
+            <div className="mt-3 flex items-end justify-between">
 
               <p className="text-3xl font-extrabold text-blue-600">
 
-                {loanAmount.toLocaleString("en-US")}
+                {loanAmount.toLocaleString("fa-IR")}
 
               </p>
 
@@ -278,28 +419,47 @@ export default function LoanForm() {
 
           </div>
 
-          {/* Button */}
+          {message && (
 
-          <Button className="h-14 w-full rounded-xl bg-blue-600 text-base font-bold hover:bg-blue-700">
+            <div
+              className={`rounded-xl p-4 text-sm font-medium ${
+                success
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {message}
+            </div>
 
-            دریافت پیشنهادها
+          )}
+
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={isPending}
+            className="h-14 w-full rounded-xl bg-blue-600 text-base font-bold hover:bg-blue-700"
+          >
+
+            {isPending
+              ? "در حال ثبت..."
+              : "دریافت پیشنهادها"}
 
           </Button>
 
-        </div>
 
-        {/* Footer */}
+        </div>
 
         <div className="mt-8 flex items-center justify-between border-t pt-6 text-sm text-slate-500">
 
           <span>✔ پاسخ کمتر از ۲۴ ساعت</span>
 
-          <span>✔ کاملاً رایگان</span>
+          <span>✔ ثبت درخواست کاملاً رایگان</span>
 
         </div>
 
       </CardContent>
 
     </Card>
+
   );
 }
