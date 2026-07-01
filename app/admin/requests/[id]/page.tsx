@@ -1,116 +1,207 @@
+import { createClient } from "@/lib/supabase/server";
 
-import { notFound } from "next/navigation";
+import { BRAND } from "@/lib/config/brand";
 
-import { supabaseAdmin } from "@/lib/supabase-admin";
-import StatusBadge from "@/components/StatusBadge";
+import AdminEventCreator from "@/components/AdminEventCreator";
+import LoanTimeline from "@/components/LoanTimeline";
 
-type Props = {
-  params: Promise<{
-    id: string;
-  }>;
-};
+function money(value: number | null | undefined) {
+  return Number(value ?? 0).toLocaleString("fa-IR");
+}
 
-export default async function RequestPage({
+export default async function Page({
   params,
-}: Props) {
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
 
-  const { data } = await supabaseAdmin
+  const supabase = createClient();
+
+  const { data: loan, error } = await supabase
     .from("loan_requests")
     .select("*")
     .eq("id", id)
     .single();
 
-  if (!data) {
-    notFound();
+  if (error || !loan) {
+    return (
+      <main className="min-h-screen bg-slate-100">
+        <div className="mx-auto max-w-3xl p-10">
+
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-8 shadow">
+
+            <h2 className="text-2xl font-bold text-red-600">
+              پرونده پیدا نشد
+            </h2>
+
+            <p className="mt-5 text-slate-600">
+              شناسه پرونده:
+            </p>
+
+            <code className="mt-3 block rounded-xl bg-white p-4 text-sm">
+              {id}
+            </code>
+
+            {error && (
+              <pre className="mt-6 overflow-auto rounded-xl bg-white p-4 text-xs">
+                {JSON.stringify(error, null, 2)}
+              </pre>
+            )}
+
+          </div>
+
+        </div>
+      </main>
+    );
   }
 
   return (
     <main className="min-h-screen bg-slate-100">
 
-      <div className="mx-auto max-w-5xl p-8">
+      <div className="mx-auto max-w-7xl space-y-8 px-6 py-10">
 
-        <div className="rounded-3xl bg-white p-10 shadow-xl">
+        {/* Header */}
 
-          <div className="mb-10 flex items-center justify-between">
+        <div className="rounded-3xl bg-white p-8 shadow">
+
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
 
             <div>
 
-              <h1 className="text-3xl font-extrabold">
-                {data.full_name}
+              <span className="inline-flex rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
+                CRM {BRAND.name}
+              </span>
+
+              <h1 className="mt-5 text-4xl font-extrabold text-slate-900">
+                {loan.full_name}
               </h1>
 
               <p className="mt-2 text-slate-500">
-                درخواست شماره #{data.id}
+                {loan.mobile}
               </p>
 
             </div>
 
-            <StatusBadge status={data.status} />
+            <div className="rounded-2xl bg-slate-100 px-6 py-5">
 
-          </div>
+              <p className="text-sm text-slate-500">
+                وضعیت پرونده
+              </p>
 
-          <div className="grid gap-6 md:grid-cols-2">
-
-            <Info
-              title="شماره موبایل"
-              value={data.mobile}
-            />
-
-            <Info
-              title="برند خودرو"
-              value={data.brand}
-            />
-
-            <Info
-              title="مدل خودرو"
-              value={data.model}
-            />
-
-            <Info
-              title="قیمت خودرو"
-              value={`${Number(data.price).toLocaleString("fa-IR")} تومان`}
-            />
-
-            <Info
-              title="پیش پرداخت"
-              value={`${Number(data.deposit).toLocaleString("fa-IR")} تومان`}
-            />
-
-            <Info
-              title="مبلغ وام"
-              value={`${Number(data.loan).toLocaleString("fa-IR")} تومان`}
-            />
-
-            <Info
-              title="مدت بازپرداخت"
-              value={`${data.months} ماه`}
-            />
-
-            <Info
-              title="تاریخ ثبت"
-              value={
-                data.created_at
-                  ? new Date(data.created_at).toLocaleDateString("fa-IR")
-                  : "-"
-              }
-            />
-
-          </div>
-
-          {data.description && (
-            <div className="mt-10">
-
-              <h3 className="mb-3 text-lg font-bold">
-                توضیحات متقاضی
-              </h3>
-
-              <div className="rounded-2xl bg-slate-50 p-6 leading-8">
-                {data.description}
-              </div>
+              <p className="mt-3 text-lg font-bold">
+                {loan.status}
+              </p>
 
             </div>
-          )}
+
+          </div>
+
+        </div>
+
+        {/* اطلاعات پرونده */}
+
+        <div className="grid gap-6 lg:grid-cols-4">
+
+          <div className="rounded-3xl bg-white p-6 shadow">
+
+            <p className="text-sm text-slate-500">
+              خودرو
+            </p>
+
+            <p className="mt-2 text-xl font-bold">
+              {loan.brand}
+            </p>
+
+            <p className="text-slate-500">
+              {loan.model}
+            </p>
+
+          </div>
+
+          <div className="rounded-3xl bg-white p-6 shadow">
+
+            <p className="text-sm text-slate-500">
+              قیمت خودرو
+            </p>
+
+            <p className="mt-2 text-xl font-bold text-blue-700">
+              {money(loan.price)}
+            </p>
+
+            <p className="text-xs text-slate-500">
+              تومان
+            </p>
+
+          </div>
+
+          <div className="rounded-3xl bg-white p-6 shadow">
+
+            <p className="text-sm text-slate-500">
+              مبلغ تسهیلات
+            </p>
+
+            <p className="mt-2 text-xl font-bold text-green-700">
+              {money(loan.loan)}
+            </p>
+
+            <p className="text-xs text-slate-500">
+              تومان
+            </p>
+
+          </div>
+
+          <div className="rounded-3xl bg-white p-6 shadow">
+
+            <p className="text-sm text-slate-500">
+              بازپرداخت
+            </p>
+
+            <p className="mt-2 text-xl font-bold">
+              {loan.months} ماه
+            </p>
+
+          </div>
+
+        </div>
+
+        {/* ثبت فعالیت */}
+
+        <div className="rounded-3xl bg-white p-8 shadow">
+
+          <div className="mb-6">
+
+            <h2 className="text-2xl font-bold">
+              ثبت فعالیت
+            </h2>
+
+            <p className="mt-2 text-slate-500">
+              تماس، یادداشت، پیامک یا هر فعالیت مرتبط با این پرونده را ثبت کنید.
+            </p>
+
+          </div>
+
+          <AdminEventCreator loanId={loan.id} />
+
+        </div>
+
+        {/* Timeline */}
+
+        <div className="rounded-3xl bg-white p-8 shadow">
+
+          <div className="mb-6">
+
+            <h2 className="text-2xl font-bold">
+              تاریخچه فعالیت‌ها
+            </h2>
+
+            <p className="mt-2 text-slate-500">
+              تمامی تغییرات، وضعیت‌ها و فعالیت‌های ثبت‌شده برای این پرونده.
+            </p>
+
+          </div>
+
+          <LoanTimeline loanId={loan.id} />
 
         </div>
 
@@ -119,26 +210,3 @@ export default async function RequestPage({
     </main>
   );
 }
-
-function Info({
-  title,
-  value,
-}: {
-  title: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl border p-5">
-
-      <p className="text-sm text-slate-500">
-        {title}
-      </p>
-
-      <p className="mt-2 font-bold text-slate-900">
-        {value}
-      </p>
-
-    </div>
-  );
-}
-

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { updateLoanStatus } from "@/app/actions/admin";
 
 type Props = {
-  id: number;
+  id: string;
   status: string;
 };
 

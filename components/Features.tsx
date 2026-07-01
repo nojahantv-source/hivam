@@ -7,42 +7,46 @@ import {
   CarFront,
 } from "lucide-react";
 
+import { BRAND } from "@/lib/config/brand";
+
 const features = [
   {
     icon: Scale,
-    title: "مقایسه هوشمند",
+    title: "مقایسه هوشمند پیشنهادها",
     description:
-      "شرایط شرکت‌های مختلف واسپاری را در یک صفحه مشاهده و بهترین گزینه را انتخاب کنید.",
+      "شرایط شرکت‌های تأمین مالی و واسپاری را در یک نگاه بررسی کرده و مناسب‌ترین گزینه را انتخاب کنید.",
   },
   {
     icon: WalletCards,
     title: "شفافیت کامل هزینه‌ها",
     description:
-      "نرخ سود، مبلغ اقساط، پیش‌پرداخت و مدت بازپرداخت را بدون ابهام مقایسه کنید.",
+      "مبلغ وام، پیش‌پرداخت، اقساط، نرخ سود و مدت بازپرداخت را با جزئیات مشاهده و مقایسه کنید.",
   },
   {
     icon: Clock3,
-    title: "صرفه‌جویی در زمان",
+    title: "ثبت درخواست در چند دقیقه",
     description:
-      "دیگر نیازی به مراجعه به چندین وب‌سایت یا تماس با شرکت‌های مختلف نخواهید داشت.",
+      "فرآیند ثبت درخواست ساده و سریع طراحی شده تا بدون مراجعه حضوری، اطلاعات خود را ارسال کنید.",
   },
   {
     icon: SearchCheck,
-    title: "اطلاعات به‌روز",
+    title: "بررسی تخصصی پرونده",
     description:
-      "شرایط شرکت‌های واسپاری به‌صورت منظم بررسی و برای مقایسه در اختیار شما قرار می‌گیرد.",
+      "درخواست شما توسط کارشناسان بررسی شده و مناسب‌ترین گزینه‌های تأمین مالی پیشنهاد می‌شود.",
   },
   {
     icon: ShieldCheck,
-    title: "اطلاعات امن",
+    title: "امنیت اطلاعات",
     description:
-      "اطلاعات واردشده در فرم درخواست با رعایت اصول امنیتی نگهداری می‌شود.",
+      "اطلاعات شخصی و مالی شما با استانداردهای امنیتی مناسب نگهداری و محرمانه باقی می‌ماند.",
   },
   {
     icon: CarFront,
-    title: "تمرکز بر خرید خودرو",
+    title: "تمرکز بر خرید اقساطی خودرو",
     description:
-      "تمام خدمات های وام با هدف انتخاب بهترین روش خرید اقساطی خودرو طراحی شده است.",
+      "تمام خدمات " +
+      BRAND.name +
+      " برای ساده‌تر کردن فرآیند خرید اقساطی خودرو و انتخاب بهترین روش تأمین مالی طراحی شده است.",
   },
 ];
 
@@ -59,16 +63,17 @@ export default function Features() {
         <div className="mx-auto max-w-3xl text-center">
 
           <span className="inline-flex rounded-full bg-blue-100 px-5 py-2 text-sm font-semibold text-blue-700">
-            مزایای های وام
+            مزایای {BRAND.name}
           </span>
 
           <h2 className="mt-6 text-4xl font-extrabold text-slate-900">
-            چرا های وام؟
+            چرا {BRAND.name}؟
           </h2>
 
           <p className="mt-5 text-lg leading-8 text-slate-600">
-            همه چیز برای اینکه بتوانید سریع‌تر، راحت‌تر و هوشمندانه‌تر
-            بهترین شرایط خرید اقساطی خودرو را انتخاب کنید.
+            {BRAND.name} با ترکیب فناوری و تجربه کارشناسان، فرآیند دریافت
+            تسهیلات و خرید اقساطی خودرو را سریع‌تر، شفاف‌تر و مطمئن‌تر
+            می‌کند.
           </p>
 
         </div>
@@ -85,6 +90,7 @@ export default function Features() {
                 key={feature.title}
                 className="group rounded-3xl border border-slate-200 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-blue-200 hover:shadow-2xl"
               >
+
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 transition-all duration-300 group-hover:bg-blue-600 group-hover:text-white">
 
                   <Icon size={30} />

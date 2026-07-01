@@ -1,7 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { Menu } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { BRAND } from "@/lib/config/brand";
 
 const menus = [
   {
@@ -27,27 +30,37 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
 
-        {/* Logo */}
+        {/* Brand */}
 
         <a
           href="#hero"
           className="flex items-center gap-3"
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-blue-500 text-lg font-extrabold text-white shadow-lg">
-            H
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <Image
+              src="/logo.svg"
+              alt={BRAND.englishName}
+              width={40}
+              height={40}
+              priority
+              className="h-10 w-10 object-contain"
+            />
+
           </div>
 
           <div>
 
             <h1 className="text-xl font-extrabold text-slate-900">
-              های وام
+              {BRAND.name}
             </h1>
 
             <p className="text-xs text-slate-500">
-              HiVam.ir
+              {BRAND.domain}
             </p>
 
           </div>
+
         </a>
 
         {/* Desktop Menu */}

@@ -1,6 +1,9 @@
 import Image from "next/image";
+
 import LoanForm from "./LoanForm";
+
 import { Button } from "@/components/ui/button";
+import { BRAND } from "@/lib/config/brand";
 
 export default function Hero() {
   return (
@@ -8,33 +11,34 @@ export default function Hero() {
       id="hero"
       className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-100"
     >
-      {/* Background Glow */}
+      {/* Background */}
 
       <div className="absolute left-1/2 top-0 h-[650px] w-[650px] -translate-x-1/2 rounded-full bg-blue-100/70 blur-3xl" />
 
       <div className="relative mx-auto max-w-7xl px-6 py-16 lg:py-24">
 
-        {/* Hero Header */}
+        {/* Hero */}
 
         <div className="mx-auto max-w-3xl text-center">
 
           <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-5 py-2 text-sm font-semibold text-blue-700">
-            🚗 های وام | سامانه هوشمند مقایسه خرید اقساطی خودرو
+            🚗 {BRAND.name} | سامانه هوشمند تأمین مالی و خرید اقساطی خودرو
           </span>
 
           <h1 className="mt-8 text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-6xl">
 
-            مقایسه هوشمند
+            خرید اقساطی خودرو
             <br />
 
-            وام خرید خودرو
+            سریع، ساده و هوشمند
 
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-            شرایط شرکت‌های واسپاری را در چند ثانیه مقایسه کنید،
-            نرخ سود، مبلغ اقساط و پیش‌پرداخت را ببینید و
-            بهترین گزینه را برای خرید خودروی خود انتخاب کنید.
+            درخواست خود را تنها در چند دقیقه ثبت کنید.
+            کارشناسان {BRAND.name} شرایط شرکت‌های تأمین مالی و واسپاری
+            را بررسی کرده و بهترین پیشنهادها را برای خرید اقساطی خودرو
+            در اختیار شما قرار می‌دهند.
           </p>
 
           <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
@@ -42,10 +46,10 @@ export default function Hero() {
             <Button
               asChild
               size="lg"
-              className="h-12 rounded-xl bg-blue-600 px-8 font-bold transition hover:scale-[1.03] hover:bg-blue-700"
+              className="h-12 rounded-xl bg-blue-600 px-8 font-bold hover:bg-blue-700"
             >
               <a href="#loan-form">
-                شروع درخواست
+                ثبت درخواست
               </a>
             </Button>
 
@@ -56,13 +60,13 @@ export default function Hero() {
               className="h-12 rounded-xl"
             >
               <a href="#comparison">
-                مقایسه پیشنهادها
+                مشاهده شرایط
               </a>
             </Button>
 
           </div>
 
-          {/* Statistics */}
+          {/* Stats */}
 
           <div className="mt-12 grid grid-cols-3 gap-6 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg backdrop-blur">
 
@@ -73,7 +77,7 @@ export default function Hero() {
               </p>
 
               <p className="mt-2 text-sm text-slate-500">
-                شرکت واسپاری
+                شرکت تأمین مالی
               </p>
 
             </div>
@@ -97,7 +101,7 @@ export default function Hero() {
               </p>
 
               <p className="mt-2 text-sm text-slate-500">
-                رایگان
+                ثبت درخواست رایگان
               </p>
 
             </div>

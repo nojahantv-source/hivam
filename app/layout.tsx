@@ -1,68 +1,59 @@
 import type { Metadata } from "next";
-import { Geist, Vazirmatn } from "next/font/google";
+import { Vazirmatn } from "next/font/google";
 
 import "./globals.css";
-import { cn } from "@/lib/utils";
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+import { BRAND } from "@/lib/config/brand";
 
 const vazirmatn = Vazirmatn({
-  subsets: ["arabic"],
-  variable: "--font-vazir",
+  subsets: ["arabic", "latin"],
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://hivam.ir"),
+  metadataBase: new URL(`https://${BRAND.domain}`),
 
   title: {
-    default: "های وام | مقایسه هوشمند خرید اقساطی خودرو",
-    template: "%s | های وام",
+    default: BRAND.name,
+    template: `%s | ${BRAND.name}`,
   },
 
-  description:
-    "های وام سامانه هوشمند مقایسه شرایط خرید اقساطی خودرو و شرکت‌های واسپاری است. نرخ سود، مبلغ اقساط، پیش‌پرداخت و شرایط شرکت‌های مختلف را در چند ثانیه مقایسه کنید.",
+  description: BRAND.shortDescription,
+
+  applicationName: BRAND.englishName,
 
   keywords: [
-    "های وام",
+    "به وام",
+    "BehVam",
     "وام خودرو",
     "خرید اقساطی خودرو",
+    "تامین مالی خودرو",
     "لیزینگ خودرو",
-    "واسپاری",
-    "شرکت واسپاری",
-    "مقایسه وام خودرو",
-    "اقساط خودرو",
-    "وام خرید خودرو",
   ],
 
   authors: [
     {
-      name: "HiVam",
-      url: "https://hivam.ir",
+      name: BRAND.company,
     },
   ],
 
-  creator: "HiVam",
-  publisher: "HiVam",
+  creator: BRAND.company,
+
+  publisher: BRAND.company,
 
   openGraph: {
     type: "website",
     locale: "fa_IR",
-    url: "https://hivam.ir",
-    siteName: "های وام",
-    title: "های وام | مقایسه هوشمند خرید اقساطی خودرو",
-    description:
-      "شرایط شرکت‌های واسپاری را مقایسه کنید و بهترین گزینه خرید اقساطی خودرو را انتخاب کنید.",
+    url: `https://${BRAND.domain}`,
+    siteName: BRAND.name,
+    title: BRAND.name,
+    description: BRAND.shortDescription,
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "های وام",
-    description:
-      "مقایسه هوشمند شرایط خرید اقساطی خودرو",
+    title: BRAND.name,
+    description: BRAND.shortDescription,
   },
 
   robots: {
@@ -70,8 +61,9 @@ export const metadata: Metadata = {
     follow: true,
   },
 
-  alternates: {
-    canonical: "https://hivam.ir",
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
 
@@ -81,22 +73,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="fa"
-      dir="rtl"
-      suppressHydrationWarning
-      className={cn(
-        "scroll-smooth",
-        geist.variable,
-        vazirmatn.variable
-      )}
-    >
-      <body
-        className={cn(
-          vazirmatn.className,
-          "min-h-screen bg-white text-slate-900 antialiased"
-        )}
-      >
+    <html lang="fa" dir="rtl">
+      <body className={vazirmatn.className}>
         {children}
       </body>
     </html>
