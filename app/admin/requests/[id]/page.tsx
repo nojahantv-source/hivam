@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-
 import { BRAND } from "@/lib/config/brand";
 
 import AdminEventCreator from "@/components/AdminEventCreator";
@@ -16,7 +15,8 @@ export default async function Page({
 }) {
   const { id } = await params;
 
-  const supabase = createClient();
+  // ✅ Next.js 16
+  const supabase = await createClient();
 
   const { data: loan, error } = await supabase
     .from("loan_requests")
@@ -28,9 +28,7 @@ export default async function Page({
     return (
       <main className="min-h-screen bg-slate-100">
         <div className="mx-auto max-w-3xl p-10">
-
           <div className="rounded-3xl border border-red-200 bg-red-50 p-8 shadow">
-
             <h2 className="text-2xl font-bold text-red-600">
               پرونده پیدا نشد
             </h2>
@@ -48,9 +46,7 @@ export default async function Page({
                 {JSON.stringify(error, null, 2)}
               </pre>
             )}
-
           </div>
-
         </div>
       </main>
     );
@@ -58,17 +54,12 @@ export default async function Page({
 
   return (
     <main className="min-h-screen bg-slate-100">
-
       <div className="mx-auto max-w-7xl space-y-8 px-6 py-10">
 
-        {/* Header */}
-
         <div className="rounded-3xl bg-white p-8 shadow">
-
           <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
 
             <div>
-
               <span className="inline-flex rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
                 CRM {BRAND.name}
               </span>
@@ -80,11 +71,9 @@ export default async function Page({
               <p className="mt-2 text-slate-500">
                 {loan.mobile}
               </p>
-
             </div>
 
             <div className="rounded-2xl bg-slate-100 px-6 py-5">
-
               <p className="text-sm text-slate-500">
                 وضعیت پرونده
               </p>
@@ -92,19 +81,14 @@ export default async function Page({
               <p className="mt-3 text-lg font-bold">
                 {loan.status}
               </p>
-
             </div>
 
           </div>
-
         </div>
-
-        {/* اطلاعات پرونده */}
 
         <div className="grid gap-6 lg:grid-cols-4">
 
           <div className="rounded-3xl bg-white p-6 shadow">
-
             <p className="text-sm text-slate-500">
               خودرو
             </p>
@@ -116,11 +100,9 @@ export default async function Page({
             <p className="text-slate-500">
               {loan.model}
             </p>
-
           </div>
 
           <div className="rounded-3xl bg-white p-6 shadow">
-
             <p className="text-sm text-slate-500">
               قیمت خودرو
             </p>
@@ -132,11 +114,9 @@ export default async function Page({
             <p className="text-xs text-slate-500">
               تومان
             </p>
-
           </div>
 
           <div className="rounded-3xl bg-white p-6 shadow">
-
             <p className="text-sm text-slate-500">
               مبلغ تسهیلات
             </p>
@@ -148,11 +128,9 @@ export default async function Page({
             <p className="text-xs text-slate-500">
               تومان
             </p>
-
           </div>
 
           <div className="rounded-3xl bg-white p-6 shadow">
-
             <p className="text-sm text-slate-500">
               بازپرداخت
             </p>
@@ -160,17 +138,13 @@ export default async function Page({
             <p className="mt-2 text-xl font-bold">
               {loan.months} ماه
             </p>
-
           </div>
 
         </div>
 
-        {/* ثبت فعالیت */}
-
         <div className="rounded-3xl bg-white p-8 shadow">
 
           <div className="mb-6">
-
             <h2 className="text-2xl font-bold">
               ثبت فعالیت
             </h2>
@@ -178,19 +152,15 @@ export default async function Page({
             <p className="mt-2 text-slate-500">
               تماس، یادداشت، پیامک یا هر فعالیت مرتبط با این پرونده را ثبت کنید.
             </p>
-
           </div>
 
           <AdminEventCreator loanId={loan.id} />
 
         </div>
 
-        {/* Timeline */}
-
         <div className="rounded-3xl bg-white p-8 shadow">
 
           <div className="mb-6">
-
             <h2 className="text-2xl font-bold">
               تاریخچه فعالیت‌ها
             </h2>
@@ -198,7 +168,6 @@ export default async function Page({
             <p className="mt-2 text-slate-500">
               تمامی تغییرات، وضعیت‌ها و فعالیت‌های ثبت‌شده برای این پرونده.
             </p>
-
           </div>
 
           <LoanTimeline loanId={loan.id} />
@@ -206,7 +175,6 @@ export default async function Page({
         </div>
 
       </div>
-
     </main>
   );
 }

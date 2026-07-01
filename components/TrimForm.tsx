@@ -11,7 +11,7 @@ type Model = {
   brand_id: string;
   brands: {
     name: string;
-  } | null;
+  }[];
 };
 
 export default function TrimForm() {
@@ -27,7 +27,7 @@ export default function TrimForm() {
 
   useEffect(() => {
     async function loadModels() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("car_models")
         .select(`
           id,
@@ -38,11 +38,16 @@ export default function TrimForm() {
         .eq("is_active", true)
         .order("name");
 
-      setModels((data ?? []) as Model[]);
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      setModels((data ?? []) as unknown as Model[]);
     }
 
     loadModels();
-  }, []);
+  }, [supabase]);
 
   function submit(formData: FormData) {
     setMessage("");
@@ -64,8 +69,6 @@ export default function TrimForm() {
       action={submit}
       className="space-y-6"
     >
-      {/* Model */}
-
       <div>
         <label className="mb-2 block text-sm font-semibold">
           مدل خودرو
@@ -85,13 +88,11 @@ export default function TrimForm() {
               key={model.id}
               value={model.id}
             >
-              {model.brands?.name} — {model.name}
+              {model.brands?.[0]?.name ?? "بدون برند"} — {model.name}
             </option>
           ))}
         </select>
       </div>
-
-      {/* Trim */}
 
       <div>
         <label className="mb-2 block text-sm font-semibold">
@@ -106,30 +107,24 @@ export default function TrimForm() {
         />
       </div>
 
-      {/* Message */}
-
       {message && (
         <div
-          className={`rounded-2xl px-4 py-3 text-sm ${
+          className={`rounded-2xl border px-4 py-3 text-sm ${
             message.includes("موفق")
-              ? "bg-green-50 text-green-700 border border-green-200"
-              : "bg-red-50 text-red-600 border border-red-200"
+              ? "border-green-200 bg-green-50 text-green-700"
+              : "border-red-200 bg-red-50 text-red-600"
           }`}
         >
           {message}
         </div>
       )}
 
-      {/* Button */}
-
       <button
         type="submit"
         disabled={pending}
         className="rounded-2xl bg-blue-600 px-8 py-3 font-bold text-white hover:bg-blue-700 disabled:opacity-50"
       >
-        {pending
-          ? "در حال ثبت..."
-          : "ثبت تیپ"}
+        {pending ? "در حال ثبت..." : "ثبت تیپ"}
       </button>
     </form>
   );

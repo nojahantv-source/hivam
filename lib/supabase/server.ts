@@ -1,8 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-export function createClient() {
-  const cookieStore = cookies();
+export async function createClient() {
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,14 +10,17 @@ export function createClient() {
     {
       cookies: {
         getAll() {
-          try {
-            return cookieStore.getAll?.() || [];
-          } catch {
-            return [];
-          }
+          return cookieStore.getAll();
         },
-        setAll() {
-          // no-op for server components
+
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          } catch {
+            // در Server Components ممکن است set مجاز نباشد.
+          }
         },
       },
     }

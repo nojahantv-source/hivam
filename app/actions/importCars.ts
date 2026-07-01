@@ -2,7 +2,6 @@
 
 import * as XLSX from "xlsx";
 import { revalidatePath } from "next/cache";
-
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 function slugify(text: string) {
@@ -10,12 +9,16 @@ function slugify(text: string) {
     .trim()
     .toLowerCase()
     .replace(/\s+/g, "-")
-    .replace(/[^\w-]+/g, "");
+    .replace(/[^\w-]/g, "");
 }
 
-export async function importCars(
-  formData: FormData
-) {
+type ExcelRow = {
+  Brand: string;
+  Model: string;
+  Trim: string;
+};
+
+export async function importCars(formData: FormData) {
   try {
     const file = formData.get("file") as File | null;
 
@@ -26,18 +29,13 @@ export async function importCars(
       };
     }
 
-    const bytes = await file.arrayBuffer();
+    const buffer = await file.arrayBuffer();
 
-    const workbook = XLSX.read(bytes);
+    const workbook = XLSX.read(buffer);
 
-    const sheet =
-      workbook.Sheets[workbook.SheetNames[0]];
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-    const rows = XLSX.utils.sheet_to_json<{
-      Brand: string;
-      Model: string;
-      Trim: string;
-    }>(sheet);
+    const rows = XLSX.utils.sheet_to_json<ExcelRow>(sheet);
 
     let newBrands = 0;
     let newModels = 0;
@@ -45,99 +43,104 @@ export async function importCars(
 
     for (const row of rows) {
       const brandName = row.Brand?.trim();
-
       const modelName = row.Model?.trim();
-
       const trimName = row.Trim?.trim();
 
-      if (
-        !brandName ||
-        !modelName ||
-        !trimName
-      ) {
+      if (!brandName || !modelName || !trimName) {
         continue;
       }
 
-      //----------------------------------
+      // =====================
       // BRAND
-      //----------------------------------
+      // =====================
 
-      let { data: brand } =
-        await supabaseAdmin
+      let brandId: string;
+
+      const { data: brand } = await supabaseAdmin
+        .from("brands")
+        .select("id")
+        .eq("name", brandName)
+        .maybeSingle();
+
+      if (brand) {
+        brandId = brand.id;
+      } else {
+        const { data, error } = await supabaseAdmin
           .from("brands")
+          .insert({
+            name: brandName,
+            slug: slugify(brandName),
+            is_active: true,
+          })
           .select("id")
-          .eq("name", brandName)
-          .maybeSingle();
+          .single();
 
-      if (!brand) {
-        const { data } =
-          await supabaseAdmin
-            .from("brands")
-            .insert({
-              name: brandName,
-              slug: slugify(brandName),
-              is_active: true,
-            })
-            .select("id")
-            .single();
+        if (error || !data) {
+          continue;
+        }
 
-        brand = data;
-
+        brandId = data.id;
         newBrands++;
       }
 
-      //----------------------------------
+      // =====================
       // MODEL
-      //----------------------------------
+      // =====================
 
-      let { data: model } =
-        await supabaseAdmin
+      let modelId: string;
+
+      const { data: model } = await supabaseAdmin
+        .from("car_models")
+        .select("id")
+        .eq("brand_id", brandId)
+        .eq("name", modelName)
+        .maybeSingle();
+
+      if (model) {
+        modelId = model.id;
+      } else {
+        const { data, error } = await supabaseAdmin
           .from("car_models")
+          .insert({
+            brand_id: brandId,
+            name: modelName,
+            slug: slugify(modelName),
+            is_active: true,
+          })
           .select("id")
-          .eq("brand_id", brand.id)
-          .eq("name", modelName)
-          .maybeSingle();
+          .single();
 
-      if (!model) {
-        const { data } =
-          await supabaseAdmin
-            .from("car_models")
-            .insert({
-              brand_id: brand.id,
-              name: modelName,
-              slug: slugify(modelName),
-              is_active: true,
-            })
-            .select("id")
-            .single();
+        if (error || !data) {
+          continue;
+        }
 
-        model = data;
-
+        modelId = data.id;
         newModels++;
       }
 
-      //----------------------------------
+      // =====================
       // TRIM
-      //----------------------------------
+      // =====================
 
-      const { data: trim } =
-        await supabaseAdmin
-          .from("car_trims")
-          .select("id")
-          .eq("model_id", model.id)
-          .eq("name", trimName)
-          .maybeSingle();
+      const { data: trim } = await supabaseAdmin
+        .from("car_trims")
+        .select("id")
+        .eq("model_id", modelId)
+        .eq("name", trimName)
+        .maybeSingle();
 
       if (!trim) {
-        await supabaseAdmin
+        const { error } = await supabaseAdmin
           .from("car_trims")
           .insert({
-            model_id: model.id,
+            model_id: modelId,
             name: trimName,
             is_active: true,
           });
 
-        newTrims++;
+        if (!error) {
+          newTrims++;
+        }
       }
     }
 
@@ -148,8 +151,7 @@ export async function importCars(
 
     return {
       success: true,
-      message:
-        `عملیات با موفقیت انجام شد.
+      message: `عملیات با موفقیت انجام شد.
 برند جدید: ${newBrands}
 مدل جدید: ${newModels}
 تیپ جدید: ${newTrims}`,
